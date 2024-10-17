@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,20 +10,9 @@ using System.Threading.Tasks;
 namespace Counter {
 
 	public class VoteCsvRecord {
-
-		public int PoolId { get; set; }
-
-		public int Slot { get; set; }
-
 		public string Value { get; set; }
 
 		public string CmsSignature { get; set; }
-
-		public string ServerSignature { get; set; }
-
-		public int ServerInstanceId { get; set; }
-
-		public string ServerPublicKey { get; set; }
 	}
 
 	public class VotesCsvReader : IDisposable {
