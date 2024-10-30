@@ -1,4 +1,5 @@
 using CsvHelper;
+using CsvHelper.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,7 +25,13 @@ namespace Counter {
 		public static VotesCsvReader Open(FileInfo file) {
 			var stream = file.OpenRead();
 			var streamReader = new StreamReader(stream);
-			var csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture /* default in SSMS is exporting with commas regardless of the OS culture */);
+			var config = new CsvConfiguration(CultureInfo.InvariantCulture /* default in SSMS is exporting with commas regardless of the OS culture */) {
+				Delimiter = ";",
+				HasHeaderRecord = true,
+				IgnoreBlankLines = true,
+				TrimOptions = TrimOptions.Trim,
+			};
+			var csvReader = new CsvReader(streamReader, config);
 			return new VotesCsvReader(stream, streamReader, csvReader);
 		}
 
