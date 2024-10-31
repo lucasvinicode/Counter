@@ -1,5 +1,4 @@
 using CsvHelper;
-using CsvHelper.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -54,13 +53,11 @@ namespace Counter {
 				.ThenByDescending(r => r.Votes);
 
 			using var streamWriter = new StreamWriter(outStream, Encoding.UTF8);
-			using var csvWriter = new CsvWriter(streamWriter, Thread.CurrentThread.CurrentCulture);
+			using var csvWriter = new CsvWriter(streamWriter, Util.CsvConfiguration);
 			csvWriter.WriteRecords(orderedRecords);
 		}
 
 		private IEnumerable<ResultCsvRecord> getDistrictRecords(string electionId, string electionLabel, DistrictResult districtResult) {
-			
-			var districtLabel = getDistrictLabel(districtResult);
 
 			// Check which parties need to be nullified
 
@@ -132,9 +129,6 @@ namespace Counter {
 			var partyFromElection = parties?.FirstOrDefault(p => p.ElectionId.Equals(electionResult.Id, StringComparison.OrdinalIgnoreCase));
 			return partyFromElection != null ? $"{partyFromElection.SubscriptionName} - {partyFromElection.ElectionName}" : null;
 		}
-
-		private string getDistrictLabel(DistrictResult districtResult)
-			=> districts?.FirstOrDefault(d => d.DistrictId.Equals(districtResult.Id, StringComparison.OrdinalIgnoreCase))?.DistrictName ?? "(não especificado)";
 
 		private string getPartyLabel(PartyResult partyResult) {
 

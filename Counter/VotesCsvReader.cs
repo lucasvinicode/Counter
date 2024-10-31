@@ -1,12 +1,7 @@
 using CsvHelper;
-using CsvHelper.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Counter {
 
@@ -25,13 +20,7 @@ namespace Counter {
 		public static VotesCsvReader Open(FileInfo file) {
 			var stream = file.OpenRead();
 			var streamReader = new StreamReader(stream);
-			var config = new CsvConfiguration(CultureInfo.InvariantCulture /* default in SSMS is exporting with commas regardless of the OS culture */) {
-				Delimiter = ";",
-				HasHeaderRecord = true,
-				IgnoreBlankLines = true,
-				TrimOptions = TrimOptions.Trim,
-			};
-			var csvReader = new CsvReader(streamReader, config);
+			var csvReader = new CsvReader(streamReader, Util.CsvConfiguration);
 			return new VotesCsvReader(stream, streamReader, csvReader);
 		}
 
