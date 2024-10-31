@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using CsvHelper.Configuration;
 using System;
 using System.Collections.Generic;
@@ -16,10 +16,6 @@ namespace Counter {
 		public string ElectionId { get; set; }
 
 		public string ElectionLabel { get; set; }
-
-		public string DistrictId { get; set; }
-
-		public string DistrictLabel { get; set; }
 
 		public string PartyIdentifier { get; set; }
 
@@ -54,7 +50,6 @@ namespace Counter {
 
 			var orderedRecords = records
 				.OrderBy(r => r.ElectionLabel)
-				.ThenBy(r => r.DistrictLabel)
 				.ThenBy(r => r.PartyLabel == BlankVotesLabel || r.PartyLabel == NullVotesLabel ? 1 : 0)
 				.ThenByDescending(r => r.Votes);
 
@@ -86,8 +81,6 @@ namespace Counter {
 				yield return new ResultCsvRecord {
 					ElectionId = electionId,
 					ElectionLabel = electionLabel,
-					DistrictId = districtResult.Id,
-					DistrictLabel = districtLabel,
 					PartyIdentifier = partyResult.Identifier,
 					PartyLabel = getPartyLabel(partyResult),
 					Votes = partyResult.Votes + (partyResult.IsNull ? nullifiedPartyResults.Sum(npr => npr.Votes) : 0),
@@ -102,8 +95,6 @@ namespace Counter {
 						yield return new ResultCsvRecord {
 							ElectionId = electionId,
 							ElectionLabel = electionLabel,
-							DistrictId = districtResult.Id,
-							DistrictLabel = districtLabel,
 							PartyIdentifier = party.PartyId,
 							PartyLabel = getPartyLabel(party),
 							Votes = 0,
@@ -118,8 +109,6 @@ namespace Counter {
 				yield return new ResultCsvRecord {
 					ElectionId = electionId,
 					ElectionLabel = electionLabel,
-					DistrictId = districtResult.Id,
-					DistrictLabel = districtLabel,
 					PartyIdentifier = PartyResult.BlankIdentifier,
 					PartyLabel = BlankVotesLabel,
 					Votes = 0,
@@ -132,8 +121,6 @@ namespace Counter {
 				yield return new ResultCsvRecord {
 					ElectionId = electionId,
 					ElectionLabel = electionLabel,
-					DistrictId = districtResult.Id,
-					DistrictLabel = districtLabel,
 					PartyIdentifier = PartyResult.NullIdentifier,
 					PartyLabel = NullVotesLabel,
 					Votes = nullifiedPartyResults.Sum(npr => npr.Votes),
