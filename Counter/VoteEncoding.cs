@@ -11,18 +11,14 @@ namespace Counter {
 	}
 
 	public class Asn1VoteChoice {
-
-		public string ElectionId { get; }
-
-		public string DistrictId { get; }
+		public string ElectionId{ get; }
 
 		public byte[] EncryptedChoice { get; }
 
 		public Asn1VoteChoice(Asn1Encodable asn1Object) {
 			var seq = (Asn1Sequence)asn1Object;
 			ElectionId = ((DerPrintableString)seq[0]).GetString();
-			DistrictId = ((DerPrintableString)seq[1]).GetString();
-			EncryptedChoice = ((DerOctetString)seq[2]).GetOctets();
+			EncryptedChoice = ((DerOctetString)seq[1]).GetOctets();
 		}
 	}
 }

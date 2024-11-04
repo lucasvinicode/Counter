@@ -207,7 +207,6 @@ namespace Counter {
 				var decryptedChoice = Encoding.UTF8.GetString(choiceDecryptions.GetDecryption(vote.Value.EncryptedChoice));
 				results
 					.GetOrAddElection(vote.Value.ElectionId)
-					.GetOrAddDistrict(vote.Value.DistrictId)
 					.GetOrAddParty(decryptedChoice)
 					.Increment();
 		}

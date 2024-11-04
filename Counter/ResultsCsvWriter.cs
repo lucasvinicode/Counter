@@ -29,11 +29,9 @@ namespace Counter {
 		private const string NullVotesLabel = "Votos nulos";
 
 		private readonly List<PartyCsvRecord> parties;
-		private readonly List<DistrictCsvRecord> districts;
 
-		public ResultsCsvWriter(List<PartyCsvRecord> parties, List<DistrictCsvRecord> districts) {
+		public ResultsCsvWriter(List<PartyCsvRecord> parties) {
 			this.parties = parties;
-			this.districts = districts;
 		}
 
 		public void Write(ElectionResultCollection results, Stream outStream) {
@@ -42,9 +40,7 @@ namespace Counter {
 
 			foreach (var electionResult in results.ElectionResults) {
 				var electionLabel = getElectionLabel(electionResult);
-				foreach (var districtResult in electionResult.DistrictResults) {
-					records.AddRange(getDistrictRecords(electionResult.Id, electionLabel, districtResult));
-				}
+				records.AddRange(getPartyRecords(electionResult.Id, electionLabel, electionResult.PartyResults));
 			}
 
 			var orderedRecords = records
@@ -57,13 +53,13 @@ namespace Counter {
 			csvWriter.WriteRecords(orderedRecords);
 		}
 
-		private IEnumerable<ResultCsvRecord> getDistrictRecords(string electionId, string electionLabel, DistrictResult districtResult) {
+		private IEnumerable<ResultCsvRecord> getPartyRecords(string electionId, string electionLabel, IEnumerable<PartyResult> partyResults) {
 
 			// Check which parties need to be nullified
 
 			var nullifiedPartyResults = new List<PartyResult>();
 
-			foreach (var partyResult in districtResult.PartyResults) {
+			foreach (var partyResult in partyResults) {
 				if (!partyResult.IsBlankOrNull) {
 					var party = parties?.FirstOrDefault(p => p.PartyId.Equals(partyResult.Identifier, StringComparison.OrdinalIgnoreCase));
 					if (party != null && !party.IsEnabled) {
@@ -74,7 +70,7 @@ namespace Counter {
 
 			// Yield parties/blanks/nulls (except nullified ones)
 
-			foreach (var partyResult in districtResult.PartyResults.Except(nullifiedPartyResults)) {
+			foreach (var partyResult in partyResults.Except(nullifiedPartyResults)) {
 				yield return new ResultCsvRecord {
 					ElectionId = electionId,
 					ElectionLabel = electionLabel,
@@ -84,11 +80,11 @@ namespace Counter {
 				};
 			}
 
-			// Yield enabled parties without votes (not in `districtResult.PartyResults`)
+			// Yield enabled parties without votes (not in `partyResults`)
 
 			if (parties != null) {
 				foreach (var party in parties.Where(p => p.IsEnabled && p.ElectionId.Equals(electionId, StringComparison.OrdinalIgnoreCase))) {
-					if (!districtResult.PartyResults.Any(r => r.Identifier.Equals(party.PartyId, StringComparison.OrdinalIgnoreCase))) {
+					if (!partyResults.Any(r => r.Identifier.Equals(party.PartyId, StringComparison.OrdinalIgnoreCase))) {
 						yield return new ResultCsvRecord {
 							ElectionId = electionId,
 							ElectionLabel = electionLabel,
@@ -102,7 +98,7 @@ namespace Counter {
 
 			// Yield blanks row if not already yielded
 
-			if (!districtResult.PartyResults.Any(p => p.Identifier.Equals(PartyResult.BlankIdentifier, StringComparison.OrdinalIgnoreCase))) {
+			if (!partyResults.Any(p => p.Identifier.Equals(PartyResult.BlankIdentifier, StringComparison.OrdinalIgnoreCase))) {
 				yield return new ResultCsvRecord {
 					ElectionId = electionId,
 					ElectionLabel = electionLabel,
@@ -114,7 +110,7 @@ namespace Counter {
 
 			// Yield nulls row if not already yielded
 
-			if (!districtResult.PartyResults.Any(p => p.Identifier.Equals(PartyResult.NullIdentifier, StringComparison.OrdinalIgnoreCase))) {
+			if (!partyResults.Any(p => p.Identifier.Equals(PartyResult.NullIdentifier, StringComparison.OrdinalIgnoreCase))) {
 				yield return new ResultCsvRecord {
 					ElectionId = electionId,
 					ElectionLabel = electionLabel,
